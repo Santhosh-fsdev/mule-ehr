@@ -1,0 +1,448 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config"
+		doc:name="HTTP Listener config"
+		doc:id="bdf2ff6e-6ab8-4c43-9843-84eb315de4e4" basePath="/api/v1">
+		<http:listener-connection host="localhost"
+			port="8081" />
+	</http:listener-config>
+	<db:config name="Database_Config" doc:name="Database Config"
+		doc:id="afefbf4e-5273-4554-9d80-0edafbd6e409">
+		<db:my-sql-connection host="localhost"
+			port="3306" user="root" password="Root@1234"
+			database="mule_healthcare" />
+	</db:config>
+	<flow name="get_patient_data"
+		doc:id="814f9763-f17a-4aaa-b20c-38996080300d">
+		<http:listener doc:name="Listener"
+			doc:id="9c9f2c92-f71b-4156-9a56-25a31e2de752"
+			config-ref="HTTP_Listener_config" path="/patient/get"
+			allowedMethods="GET" outputMimeType="application/json">
+			<reconnect-forever />
+			<http:response statusCode="200"
+				reasonPhrase="test response">
+				<http:body><![CDATA[#[%dw 2.0
+output application/json
+---
+payload]]]></http:body>
+			</http:response>
+			<http:error-response>
+				<http:body><![CDATA[`# [output application/json --- payload]`]]></http:body>
+			</http:error-response>
+		</http:listener>
+		<db:select doc:name="Select"
+			doc:id="feaa9392-a436-4264-9b67-0099ba45a42a"
+			config-ref="Database_Config">
+			<db:sql><![CDATA[select * from patient]]></db:sql>
+		</db:select>
+		<set-variable value="#[[]]" doc:name="patient_data"
+			doc:id="a6e138bc-a0f1-4c50-8db2-0d7d2734c12e"
+			variableName="patient_data" />
+	</flow>
+	<flow name="get_practitioner_data"
+		doc:id="28045b5b-5f58-41b7-93ed-01343a618c61">
+		<http:listener doc:name="Listener"
+			doc:id="339c9d1c-0061-4649-9320-865c66fda5a3"
+			config-ref="HTTP_Listener_config" path="/practitioner/get"
+			outputMimeType="application/json" allowedMethods="GET">
+			<reconnect-forever />
+			<http:response statusCode="200"
+				reasonPhrase="test response">
+				<http:body><![CDATA[#[%dw 2.0
+output application/json
+---
+payload]]]></http:body>
+			</http:response>
+			<http:error-response>
+				<http:body><![CDATA[`# [output application/json --- payload]`]]></http:body>
+			</http:error-response>
+		</http:listener>
+		<db:select doc:name="Select"
+			doc:id="33baec79-14f2-4107-a677-a6613d6c92b9"
+			config-ref="Database_Config">
+			<db:sql><![CDATA[select * from practitioner]]></db:sql>
+		</db:select>
+		<set-variable value="#[[]]" doc:name="practitioner_data"
+			doc:id="23bf1083-c8b0-4771-8e91-e3917b663294"
+			variableName="practitioner_data" />
+	</flow>
+	<flow name="get_appointment_data"
+		doc:id="3a396b08-3bff-46d8-a379-31c513f7b8da">
+		<http:listener doc:name="Listener"
+			doc:id="9e76f066-9c9d-4637-83bc-b7d59b94b650"
+			config-ref="HTTP_Listener_config" path="/appointment/get"
+			outputMimeType="application/json" allowedMethods="GET">
+			<reconnect-forever />
+			<http:response statusCode="200"
+				reasonPhrase="test response">
+				<http:body><![CDATA[#[%dw 2.0
+output application/json
+---
+payload]]]></http:body>
+			</http:response>
+			<http:error-response>
+				<http:body><![CDATA[`# [output application/json --- payload]`]]></http:body>
+			</http:error-response>
+		</http:listener>
+		<db:select doc:name="Select"
+			doc:id="d02e00cc-0ee9-4a10-9c4f-09eb90af7d2a"
+			config-ref="Database_Config">
+			<db:sql><![CDATA[select * from appointment]]></db:sql>
+		</db:select>
+		<set-variable value="#[[]]" doc:name="appointment_data"
+			doc:id="51e0c997-5610-41ac-882a-427c542f8bb8"
+			variableName="appointment_data" />
+	</flow>
+	<flow name="get_schedule_data"
+		doc:id="547c522a-5cb2-4767-8511-595476446bc0">
+		<http:listener doc:name="Listener"
+			doc:id="9b01a9dd-4297-490a-8aa2-27f0b90a2f91"
+			config-ref="HTTP_Listener_config" path="/schedule/get"
+			outputMimeType="application/json" allowedMethods="GET">
+			<reconnect-forever />
+			<http:response statusCode="200"
+				reasonPhrase="test response">
+				<http:body><![CDATA[#[%dw 2.0
+output application/json
+---
+payload]]]></http:body>
+			</http:response>
+			<http:error-response>
+				<http:body><![CDATA[`# [output application/json --- payload]`]]></http:body>
+			</http:error-response>
+		</http:listener>
+		<db:select doc:name="Select"
+			doc:id="4eea3a01-a761-4e1f-b241-9f824df89216"
+			config-ref="Database_Config">
+			<db:sql><![CDATA[select * from schedule]]></db:sql>
+		</db:select>
+		<set-variable value="#[[]]" doc:name="schedule_data"
+			doc:id="fef2154c-6906-4bb7-a211-f1e54a46640a"
+			variableName="schedule_data" />
+	</flow>
+	<flow name="get_slot_data"
+		doc:id="cab2dcb5-beeb-4e48-8805-260004043701">
+		<http:listener doc:name="Listener"
+			doc:id="5b6ebccd-b564-435b-a5d5-d6fe3a96c68a"
+			config-ref="HTTP_Listener_config" path="/slot/get"
+			outputMimeType="application/json" allowedMethods="GET">
+			<reconnect-forever />
+			<http:response statusCode="200"
+				reasonPhrase="test response">
+				<http:body><![CDATA[#[%dw 2.0
+output application/json
+---
+payload]]]></http:body>
+			</http:response>
+			<http:error-response>
+				<http:body><![CDATA[`# [output application/json --- payload]`]]></http:body>
+			</http:error-response>
+		</http:listener>
+		<db:select doc:name="Select"
+			doc:id="fed8dd5b-23e4-4e04-97e0-671cc79fb368"
+			config-ref="Database_Config">
+			<db:sql><![CDATA[select * from slot]]></db:sql>
+		</db:select>
+		<set-variable value="#[[]]" doc:name="slot_data"
+			doc:id="76f12000-e411-4a5c-a0be-35a803e677e9"
+			variableName="slot_data" />
+	</flow>
+	<flow name="get_condition_data"
+		doc:id="98700819-f412-4f81-9271-7e0d57c10694">
+		<http:listener doc:name="Listener"
+			doc:id="9edec130-9880-43c1-8721-df2c19536fe4"
+			config-ref="HTTP_Listener_config" path="/condition/get"
+			outputMimeType="application/json" allowedMethods="GET">
+			<reconnect-forever />
+			<http:response statusCode="200"
+				reasonPhrase="test response">
+				<http:body><![CDATA[#[%dw 2.0
+output application/json
+---
+payload]]]></http:body>
+			</http:response>
+			<http:error-response>
+				<http:body><![CDATA[`# [output application/json --- payload]`]]></http:body>
+			</http:error-response>
+		</http:listener>
+		<db:select doc:name="Select"
+			doc:id="ca29801e-7e58-40f8-adcd-2f7119c5442b"
+			config-ref="Database_Config">
+			<db:sql><![CDATA[select * from patient_condition]]></db:sql>
+		</db:select>
+		<set-variable value="#[[]]" doc:name="condition_data"
+			doc:id="fbbaba5f-4ccf-46d7-8a9d-54102fee33fd"
+			variableName="condition_data" />
+	</flow>
+	<flow name="get_allergy_intolerance_data"
+		doc:id="7ded7e33-4124-4780-bd0b-bde23118ced8">
+		<http:listener doc:name="Listener"
+			doc:id="bbac2152-c73d-447e-b862-a26f4e6ded3a"
+			config-ref="HTTP_Listener_config" path="/allergy/get"
+			outputMimeType="application/json" allowedMethods="GET">
+			<reconnect-forever />
+			<http:response statusCode="200"
+				reasonPhrase="test response">
+				<http:body><![CDATA[#[%dw 2.0
+output application/json
+---
+payload]]]></http:body>
+			</http:response>
+			<http:error-response>
+				<http:body><![CDATA[`# [output application/json --- payload]`]]></http:body>
+			</http:error-response>
+		</http:listener>
+		<db:select doc:name="Select"
+			doc:id="bf95c07d-1bde-4626-97e4-74010e400916"
+			config-ref="Database_Config">
+			<db:sql><![CDATA[select * from allergyintolerance]]></db:sql>
+		</db:select>
+		<set-variable value="#[[]]"
+			doc:name="get_allergy_intolerance_data"
+			doc:id="36a20a3c-ae83-4277-8355-6797098a6ec9"
+			variableName="get_allergy_intolerance_data" />
+	</flow>
+	<flow name="get_patient_by_id">
+		<http:listener doc:name="Listener"
+			config-ref="HTTP_Listener_config" path="/patient/get/{id}"
+			outputMimeType="application/json" allowedMethods="GET" />
+		<set-variable variableName="patientData" value="#[[]]" />
+		<foreach
+			collection="#[attributes.uriParams.id to attributes.uriParams.id  as Number]">
+			<db:query-single doc:name="Query single"
+				config-ref="Database_Config">
+				<db:sql><![CDATA[SELECT * from patient WHERE id = :id]]></db:sql>
+				<db:input-parameters><![CDATA[#[{'id': payload }]]]></db:input-parameters>
+			</db:query-single>
+			<set-variable variableName="patientData"
+				value="#[vars.patientData ++ [payload]]" />
+		</foreach>
+		<set-payload
+			value="#[output application/json --- { result : vars.patientData }]" />
+	</flow>
+	<flow name="get_allery_intolerance_by_id">
+		<http:listener doc:name="Listener"
+			config-ref="HTTP_Listener_config" path="/allergy/get/{id}"
+			outputMimeType="application/json" allowedMethods="GET" />
+		<set-variable variableName="allergyData" value="#[[]]" />
+		<foreach
+			collection="#[attributes.uriParams.id to attributes.uriParams.id  as Number]">
+			<db:query-single doc:name="Query single"
+				config-ref="Database_Config">
+				<db:sql><![CDATA[SELECT * from allergyintolerance WHERE id = :id]]></db:sql>
+				<db:input-parameters><![CDATA[#[{'id': payload }]]]></db:input-parameters>
+			</db:query-single>
+			<set-variable variableName="allergyData"
+				value="#[vars.allergyData ++ [payload]]" />
+		</foreach>
+		<set-payload
+			value="#[output application/json --- { result : vars.allergyData }]" />
+	</flow>
+	<flow name="get_appointment_by_id">
+		<http:listener doc:name="Listener"
+			config-ref="HTTP_Listener_config" path="/appointment/get/{id}"
+			outputMimeType="application/json" allowedMethods="GET" />
+		<set-variable variableName="appointmentData"
+			value="#[[]]" />
+		<foreach
+			collection="#[attributes.uriParams.id to attributes.uriParams.id  as Number]">
+			<db:query-single doc:name="Query single"
+				config-ref="Database_Config">
+				<db:sql><![CDATA[SELECT * from appointment WHERE id = :id]]></db:sql>
+				<db:input-parameters><![CDATA[#[{'id': payload }]]]></db:input-parameters>
+			</db:query-single>
+			<set-variable variableName="appointmentData"
+				value="#[vars.appointmentData ++ [payload]]" />
+		</foreach>
+		<set-payload
+			value="#[output application/json --- { result : vars.appointmentData }]" />
+	</flow>
+
+	<flow name="get_patient_condition_by_id">
+		<http:listener doc:name="Listener"
+			config-ref="HTTP_Listener_config" path="/condition/get/{id}"
+			outputMimeType="application/json" allowedMethods="GET" />
+		<set-variable variableName="conditionData" value="#[[]]" />
+		<foreach
+			collection="#[attributes.uriParams.id to attributes.uriParams.id  as Number]">
+			<db:query-single doc:name="Query single"
+				config-ref="Database_Config">
+				<db:sql><![CDATA[SELECT * from patient_condition WHERE id = :id]]></db:sql>
+				<db:input-parameters><![CDATA[#[{'id': payload }]]]></db:input-parameters>
+			</db:query-single>
+			<set-variable variableName="conditionData"
+				value="#[vars.conditionData ++ [payload]]" />
+		</foreach>
+		<set-payload
+			value="#[output application/json --- { result : vars.conditionData }]" />
+	</flow>
+
+	<flow name="get_practitioner_by_id">
+		<http:listener doc:name="Listener"
+			config-ref="HTTP_Listener_config" path="/practitioner/get/{id}"
+			outputMimeType="application/json" allowedMethods="GET" />
+		<set-variable variableName="practitionerData"
+			value="#[[]]" />
+		<foreach
+			collection="#[attributes.uriParams.id to attributes.uriParams.id  as Number]">
+			<db:query-single doc:name="Query single"
+				config-ref="Database_Config">
+				<db:sql><![CDATA[SELECT * from practitioner WHERE id = :id]]></db:sql>
+				<db:input-parameters><![CDATA[#[{'id': payload }]]]></db:input-parameters>
+			</db:query-single>
+			<set-variable variableName="practitionerData"
+				value="#[vars.practitionerData ++ [payload]]" />
+		</foreach>
+		<set-payload
+			value="#[output application/json --- { result : vars.practitionerData }]" />
+	</flow>
+
+	<flow name="get_schedule_by_id">
+		<http:listener doc:name="Listener"
+			config-ref="HTTP_Listener_config" path="/schedule/get/{id}"
+			outputMimeType="application/json" allowedMethods="GET" />
+		<set-variable variableName="scheduleData" value="#[[]]" />
+		<foreach
+			collection="#[attributes.uriParams.id to attributes.uriParams.id  as Number]">
+			<db:query-single doc:name="Query single"
+				config-ref="Database_Config">
+				<db:sql><![CDATA[SELECT * from schedule WHERE id = :id]]></db:sql>
+				<db:input-parameters><![CDATA[#[{'id': payload }]]]></db:input-parameters>
+			</db:query-single>
+			<set-variable variableName="scheduleData"
+				value="#[vars.scheduleData ++ [payload]]" />
+		</foreach>
+		<set-payload
+			value="#[output application/json --- { result : vars.scheduleData }]" />
+	</flow>
+	<flow name="get_slot_by_id">
+		<http:listener doc:name="Listener"
+			config-ref="HTTP_Listener_config" path="/slot/get/{id}"
+			outputMimeType="application/json" allowedMethods="GET" />
+		<set-variable variableName="slotData" value="#[[]]" />
+		<foreach
+			collection="#[attributes.uriParams.id to attributes.uriParams.id  as Number]">
+			<db:query-single doc:name="Query single"
+				config-ref="Database_Config">
+				<db:sql><![CDATA[SELECT * from slot WHERE id = :id]]></db:sql>
+				<db:input-parameters><![CDATA[#[{'id': payload }]]]></db:input-parameters>
+			</db:query-single>
+			<set-variable variableName="slotData"
+				value="#[vars.slotData ++ [payload]]" />
+		</foreach>
+		<set-payload
+			value="#[output application/json --- { result : vars.slotData }]" />
+	</flow>
+	<flow name="insert_patient_data">
+		<http:listener doc:name="Listener"
+			config-ref="HTTP_Listener_config" path="/patient/post"
+			allowedMethods="POST" />
+		<db:insert doc:name="Insert" config-ref="Database_Config">
+			<db:sql><![CDATA[insert into patient (name, date_of_birth, gender)
+values (:name,:date_of_birth,:gender);]]></db:sql>
+			<db:input-parameters><![CDATA[#[{'name': payload.name,
+'date_of_birth' : payload.date_of_birth,
+'gender' : payload.gender}]]]></db:input-parameters>
+		</db:insert>
+		<set-payload value="Patient Created Successfully"
+			doc:name="Set Payload" />
+	</flow>
+	<flow name="insert_allergy_data">
+		<http:listener doc:name="Listener"
+			config-ref="HTTP_Listener_config" path="/allergy/post"
+			allowedMethods="POST" />
+		<db:insert doc:name="Insert" config-ref="Database_Config">
+			<db:sql><![CDATA[insert into allergyintolerance (patient_id, code, severity)
+values (:patient_id,:code,:severity);]]></db:sql>
+			<db:input-parameters><![CDATA[#[{'patient_id': payload.patient_id,
+'code' : payload.code,
+'severity' : payload.severity}]]]></db:input-parameters>
+		</db:insert>
+		<set-payload value="Allergy Data Created Successfully"
+			doc:name="Set Payload" />
+	</flow>
+	<flow name="insert_appointment_data">
+		<http:listener doc:name="Listener"
+			config-ref="HTTP_Listener_config" path="/appointment/post"
+			allowedMethods="POST" />
+		<db:insert doc:name="Insert" config-ref="Database_Config">
+			<db:sql><![CDATA[insert into appointment (appointment_date, start_time, end_time, appointment_status,patient_id,practitioner_id,location_id)
+values (:appointment_date,:start_time,:end_time, :appointment_status, :patient_id, :practitioner_id, :location_id);]]></db:sql>
+			<db:input-parameters><![CDATA[#[{'appointment_date': payload.appointment_date,
+'start_time' : payload.start_time,
+'end_time' : payload.end_time,
+'appointment_status':payload.appointment_status,
+'patient_id': payload.patient_id,
+'practitioner_id':payload.practitioner_id,
+'location_id':payload.location_id}]]]></db:input-parameters>
+		</db:insert>
+		<set-payload value="Appointment Data Created Successfully"
+			doc:name="Set Payload" />
+	</flow>
+		<flow name="insert_condition_data">
+		<http:listener doc:name="Listener"
+			config-ref="HTTP_Listener_config" path="/condition/post"
+			allowedMethods="POST" />
+		<db:insert doc:name="Insert" config-ref="Database_Config">
+			<db:sql><![CDATA[insert into patient_condition (patient_id, code, onset_date)
+values (:patient_id,:code,:onset_date);]]></db:sql>
+			<db:input-parameters><![CDATA[#[{'patient_id': payload.patient_id,
+'code' : payload.code,
+'onset_date' : payload.onset_date}]]]></db:input-parameters>
+		</db:insert>
+		<set-payload value="Patient Condition Data Created Successfully"
+			doc:name="Set Payload" />
+	</flow>
+	<flow name="insert_practitioner_data">
+		<http:listener doc:name="Listener"
+			config-ref="HTTP_Listener_config" path="/practitioner/post"
+			allowedMethods="POST" />
+		<db:insert doc:name="Insert" config-ref="Database_Config">
+			<db:sql><![CDATA[insert into practitioner (name,specialty)
+values (:name,:specialty);]]></db:sql>
+			<db:input-parameters><![CDATA[#[{'name': payload.name,
+'specialty' : payload.specialty}]]]></db:input-parameters>
+		</db:insert>
+		<set-payload value="Practitioner Data Created Successfully"
+			doc:name="Set Payload" />
+	</flow>
+	<flow name="insert_schedule_data">
+		<http:listener doc:name="Listener"
+			config-ref="HTTP_Listener_config" path="/schedule/post"
+			allowedMethods="POST" />
+		<db:insert doc:name="Insert" config-ref="Database_Config">
+			<db:sql><![CDATA[insert into schedule (practitioner_id,start_time,end_time)
+values (:practitioner_id,:start_time, :end_time);]]></db:sql>
+			<db:input-parameters><![CDATA[#[{'practitioner_id': payload.practitioner_id,
+'start_time' : payload.start_time,
+'end_time': payload.end_time}]]]></db:input-parameters>
+		</db:insert>
+		<set-payload value="Schedule Data Created Successfully"
+			doc:name="Set Payload" />
+	</flow>
+		<flow name="insert_slot_data">
+		<http:listener doc:name="Listener"
+			config-ref="HTTP_Listener_config" path="/slot/post"
+			allowedMethods="POST" />
+		<db:insert doc:name="Insert" config-ref="Database_Config">
+			<db:sql><![CDATA[insert into slot (schedule_id,start_time,end_time,status)
+values (:schedule_id,:start_time, :end_time, :status);]]></db:sql>
+			<db:input-parameters><![CDATA[#[{'schedule_id': payload.schedule_id,
+'start_time' : payload.start_time,
+'end_time': payload.end_time,
+'status' : payload.status}]]]></db:input-parameters>
+		</db:insert>
+		<set-payload value="Slot Data Created Successfully"
+			doc:name="Set Payload" />
+	</flow>
+</mule>
